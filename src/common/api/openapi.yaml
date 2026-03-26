@@ -1,0 +1,1340 @@
+openapi: 3.0.3
+info:
+  title: BrandRadar API
+  description: Brand reputation monitoring system API
+  version: "1.0"
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+
+security: []
+
+tags:
+  - name: health
+    description: Health check
+  - name: auth
+    description: Authentication
+  - name: projects
+    description: Project management
+  - name: brands
+    description: Brand settings per project
+  - name: brand-catalog
+    description: Global brand catalog
+  - name: sources
+    description: Source management
+  - name: feed
+    description: Mentions feed
+  - name: analytics
+    description: Analytics & reports
+  - name: events
+    description: Project events log
+  - name: alerts
+    description: Alerts
+  - name: alert-config
+    description: Alert configuration
+
+paths:
+  # ── Health ──────────────────────────────────────────────
+  /health:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      servers:
+        - url: http://localhost:8080
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  # ── Auth ────────────────────────────────────────────────
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/me:
+    get:
+      operationId: me
+      tags: [auth]
+      summary: Get current user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ── Brand Catalog ───────────────────────────────────────
+  /brand-catalog:
+    get:
+      operationId: listBrandCatalog
+      tags: [brand-catalog]
+      summary: List brand catalog
+      parameters:
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrandCatalogList"
+
+  /brand-catalog/search:
+    get:
+      operationId: searchBrandCatalog
+      tags: [brand-catalog]
+      summary: Search brand catalog
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrandCatalog"
+
+  # ── Projects ────────────────────────────────────────────
+  /projects:
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a project
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List user projects
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+
+  /projects/{projectID}:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get project by ID
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update project
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete project
+      security:
+        - BearerAuth: []
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Sources ─────────────────────────────────────────────
+  /projects/{projectID}/sources:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    post:
+      operationId: createSource
+      tags: [sources]
+      summary: Create a source
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSourceRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Source"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    get:
+      operationId: listSources
+      tags: [sources]
+      summary: List project sources
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Source"
+
+  /projects/{projectID}/sources/{sourceID}:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+      - $ref: "#/components/parameters/sourceID"
+    put:
+      operationId: updateSource
+      tags: [sources]
+      summary: Update a source
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSourceRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Source"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteSource
+      tags: [sources]
+      summary: Delete a source
+      security:
+        - BearerAuth: []
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projects/{projectID}/sources/{sourceID}/toggle:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+      - $ref: "#/components/parameters/sourceID"
+    post:
+      operationId: toggleSource
+      tags: [sources]
+      summary: Toggle source status
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Source"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Brand ───────────────────────────────────────────────
+  /projects/{projectID}/brand:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    post:
+      operationId: createBrand
+      tags: [brands]
+      summary: Create brand for project
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBrandRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brand"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    get:
+      operationId: getBrand
+      tags: [brands]
+      summary: Get brand settings for project
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brand"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateBrand
+      tags: [brands]
+      summary: Update brand settings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBrandRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brand"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteBrand
+      tags: [brands]
+      summary: Delete brand
+      security:
+        - BearerAuth: []
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── Feed ────────────────────────────────────────────────
+  /projects/{projectID}/feed:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: listFeed
+      tags: [feed]
+      summary: List mentions feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sentiment
+          in: query
+          schema:
+            type: string
+            enum: [positive, negative, neutral, unknown]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending_ml, enriched, ready, dismissed]
+        - name: since
+          in: query
+          description: "RFC 3339 datetime"
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          description: "RFC 3339 datetime"
+          schema:
+            type: string
+            format: date-time
+        - name: brand_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: source_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: has_risk
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MentionRow"
+
+  /projects/{projectID}/feed/{mentionID}:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+      - $ref: "#/components/parameters/mentionID"
+    get:
+      operationId: getMention
+      tags: [feed]
+      summary: Get mention details
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentionRow"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projects/{projectID}/feed/{mentionID}/duplicates:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+      - $ref: "#/components/parameters/mentionID"
+    get:
+      operationId: listDuplicates
+      tags: [feed]
+      summary: List mention duplicates
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MentionRow"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projects/{projectID}/feed/{mentionID}/dismiss:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+      - $ref: "#/components/parameters/mentionID"
+    post:
+      operationId: dismissMention
+      tags: [feed]
+      summary: Dismiss a mention
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: dismissed
+
+  # ── Analytics ───────────────────────────────────────────
+  /projects/{projectID}/analytics:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: analyticsSummary
+      tags: [analytics]
+      summary: Analytics summary
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+
+  /projects/{projectID}/analytics/timeline:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: analyticsTimeline
+      tags: [analytics]
+      summary: Mentions timeline
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: since
+          in: query
+          description: "RFC 3339 datetime"
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          description: "RFC 3339 datetime"
+          schema:
+            type: string
+            format: date-time
+        - name: interval
+          in: query
+          schema:
+            type: string
+            enum: [hour, day]
+            default: day
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimelinePoint"
+
+  /projects/{projectID}/analytics/sentiment:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: analyticsSentiment
+      tags: [analytics]
+      summary: Sentiment distribution
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int64
+
+  /projects/{projectID}/analytics/sources:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: analyticsSources
+      tags: [analytics]
+      summary: Top sources by mention count
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SourceMentionCount"
+
+  # ── Events ──────────────────────────────────────────────
+  /projects/{projectID}/events:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: listEvents
+      tags: [events]
+      summary: List project events
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventRow"
+
+  # ── Alerts ──────────────────────────────────────────────
+  /projects/{projectID}/alerts:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List project alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AlertRow"
+
+  # ── Alert Config ────────────────────────────────────────
+  /projects/{projectID}/alert-config:
+    parameters:
+      - $ref: "#/components/parameters/projectID"
+    get:
+      operationId: getAlertConfig
+      tags: [alert-config]
+      summary: Get alert configuration
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertConfig"
+    put:
+      operationId: upsertAlertConfig
+      tags: [alert-config]
+      summary: Create or update alert configuration
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertAlertConfigRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertConfig"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+# ═══════════════════════════════════════════════════════════
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    projectID:
+      name: projectID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    sourceID:
+      name: sourceID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    mentionID:
+      name: mentionID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ValidationError:
+      description: Validation Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    # ── Common ──────────────────────────────────────────
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+
+    # ── Auth ────────────────────────────────────────────
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+
+    AuthTokens:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ── Project ─────────────────────────────────────────
+    CreateProjectRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+
+    UpdateProjectRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ── Source ──────────────────────────────────────────
+    CreateSourceRequest:
+      type: object
+      required: [type, name, url]
+      properties:
+        type:
+          type: string
+          enum: [rss, web, telegram]
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        url:
+          type: string
+          format: uri
+        config:
+          type: object
+
+    UpdateSourceRequest:
+      type: object
+      required: [name, url]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        url:
+          type: string
+          format: uri
+        config:
+          type: object
+
+    Source:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [rss, web, telegram, site]
+        name:
+          type: string
+        url:
+          type: string
+        config:
+          type: object
+        status:
+          type: string
+          enum: [active, error, disabled]
+        last_fetched_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_error:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ── Brand ──────────────────────────────────────────
+    CreateBrandRequest:
+      type: object
+      required: [name, keywords]
+      properties:
+        catalog_id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        keywords:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        exclusions:
+          type: array
+          items:
+            type: string
+        risk_words:
+          type: array
+          items:
+            type: string
+
+    UpdateBrandRequest:
+      type: object
+      required: [name, keywords]
+      properties:
+        catalog_id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        keywords:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        exclusions:
+          type: array
+          items:
+            type: string
+        risk_words:
+          type: array
+          items:
+            type: string
+
+    Brand:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        catalog_id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        exclusions:
+          type: array
+          items:
+            type: string
+        risk_words:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ── Brand Catalog ──────────────────────────────────
+    BrandCatalog:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+        source_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    BrandCatalogList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/BrandCatalog"
+        total:
+          type: integer
+
+    # ── Mention ────────────────────────────────────────
+    MentionRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          format: uuid
+        brand_id:
+          type: string
+          format: uuid
+        external_id:
+          type: string
+        title:
+          type: string
+          nullable: true
+        text:
+          type: string
+        url:
+          type: string
+          nullable: true
+        author:
+          type: string
+          nullable: true
+        published_at:
+          type: string
+          format: date-time
+        matched_keywords:
+          type: array
+          items:
+            type: string
+        matched_risk_words:
+          type: array
+          items:
+            type: string
+        sentiment_label:
+          type: string
+          nullable: true
+        sentiment_score:
+          type: number
+          format: double
+          nullable: true
+        is_duplicate:
+          type: boolean
+        status:
+          type: string
+          enum: [pending_ml, enriched, ready, dismissed]
+        created_at:
+          type: string
+          format: date-time
+
+    # ── Analytics ──────────────────────────────────────
+    AnalyticsSummary:
+      type: object
+      properties:
+        total_mentions:
+          type: integer
+          format: int64
+        sentiment_counts:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+        top_sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceMentionCount"
+
+    SourceMentionCount:
+      type: object
+      properties:
+        source_id:
+          type: string
+          format: uuid
+        count:
+          type: integer
+          format: int64
+
+    TimelinePoint:
+      type: object
+      properties:
+        bucket:
+          type: string
+          format: date-time
+        count:
+          type: integer
+          format: int64
+        sentiment:
+          type: string
+
+    # ── Event ──────────────────────────────────────────
+    EventRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        source_id:
+          type: string
+          format: uuid
+          nullable: true
+        type:
+          type: string
+        message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # ── Alert ──────────────────────────────────────────
+    AlertRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        mention_count:
+          type: integer
+        threshold:
+          type: integer
+        sentiment_summary:
+          type: object
+        status:
+          type: string
+          enum: [pending, sent, failed]
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    # ── Alert Config ───────────────────────────────────
+    AlertConfig:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        spike_threshold:
+          type: integer
+        spike_window_minutes:
+          type: integer
+        cooldown_minutes:
+          type: integer
+        notification_channels:
+          type: array
+          items:
+            type: object
+        enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UpsertAlertConfigRequest:
+      type: object
+      required: [spike_threshold, spike_window_minutes, cooldown_minutes, enabled]
+      properties:
+        spike_threshold:
+          type: integer
+          minimum: 1
+        spike_window_minutes:
+          type: integer
+          minimum: 1
+        cooldown_minutes:
+          type: integer
+          minimum: 1
+        notification_channels:
+          type: array
+          items:
+            type: object
+        enabled:
+          type: boolean
+
+    # ── Health ─────────────────────────────────────────
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        database:
+          type: string
+        redis:
+          type: string
+        nats:
+          type: string

@@ -1,0 +1,157 @@
+:root {
+  /* ── shadcn-переменные (пастельные бежевые) ────────── */
+  --background: #f5f0e8;
+  --foreground: #2c2825;
+  --card: #fdfbf7;
+  --card-foreground: #2c2825;
+  --popover: #fdfbf7;
+  --popover-foreground: #2c2825;
+  --primary: #b8956b;
+  --primary-foreground: #fdfbf7;
+  --secondary: #ebe5dc;
+  --secondary-foreground: #2c2825;
+  --muted: #ebe5dc;
+  --muted-foreground: rgba(44, 40, 37, 0.55);
+  --accent: #f5f0e8;
+  --accent-foreground: #2c2825;
+  --destructive: #c17b6e;
+  --destructive-foreground: #fdfbf7;
+  --border: rgba(44, 40, 37, 0.12);
+  --input: rgba(44, 40, 37, 0.12);
+  --ring: #b8956b;
+  --radius: 0.5rem;
+
+  --sidebar: #faf6f0;
+  --sidebar-foreground: #2c2825;
+  --sidebar-primary: #b8956b;
+  --sidebar-primary-foreground: #fdfbf7;
+  --sidebar-accent: #ebe5dc;
+  --sidebar-accent-foreground: #2c2825;
+  --sidebar-border: rgba(44, 40, 37, 0.08);
+  --sidebar-ring: #b8956b;
+
+  /* Фоны */
+  --raw-bg: #f5f0e8;
+  --raw-bg-elevated: #faf6f0;
+  --raw-bg-subtle: #ebe5dc;
+  --raw-surface: #fdfbf7;
+  --raw-surface-hover: #f5f0e8;
+
+  /* Акцент (бежево-золотистый) */
+  --raw-accent: #b8956b;
+  --raw-accent-hover: #a08058;
+  --raw-accent-active: #8a6d48;
+  --raw-accent-subtle: #c4a77d;
+  --raw-accent-20: color-mix(in srgb, #b8956b 20%, transparent);
+  --raw-accent-12: color-mix(in srgb, #b8956b 12%, transparent);
+  --raw-accent-8: color-mix(in srgb, #b8956b 8%, transparent);
+
+  /* Бордеры */
+  --raw-border: rgba(44, 40, 37, 0.12);
+  --raw-border-strong: rgba(44, 40, 37, 0.22);
+
+  /* Текст */
+  --raw-text: #2c2825;
+  --raw-text-80: rgba(44, 40, 37, 0.8);
+  --raw-text-60: rgba(44, 40, 37, 0.6);
+  --raw-text-40: rgba(44, 40, 37, 0.4);
+  --raw-text-disabled: rgba(44, 40, 37, 0.28);
+
+  /* Статусы (приглушённые пастельные) */
+  --raw-success: #5a8f6e;
+  --raw-success-bg: #e8f0eb;
+  --raw-warning: #b8925a;
+  --raw-warning-bg: #faf5eb;
+  --raw-error: #c17b6e;
+  --raw-error-bg: #faf0ee;
+  --raw-info: #6b8fa8;
+  --raw-info-bg: #eef4f8;
+
+  /* Отступы и размеры */
+  --space-2: 0.5rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-10: 2.5rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --page-padding-x: 1.5rem;
+  --page-padding-y: 2rem;
+  --section-gap: 2rem;
+  --chart-area-height: 300px;
+  --chart-container-min-height: 420px;
+  --news-feed-margin-top: 2.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DARK THEME (тёплые тёмные бежевые)
+═══════════════════════════════════════════════════════ */
+.dark {
+  /* ── shadcn-переменные ──────────────────────────────── */
+  --background: #1e1b18;
+  --foreground: #f2eee8;
+  --card: #262320;
+  --card-foreground: #f2eee8;
+  --popover: #262320;
+  --popover-foreground: #f2eee8;
+  --primary: #c4a77d;
+  --primary-foreground: #1e1b18;
+  --secondary: #2e2a26;
+  --secondary-foreground: #f2eee8;
+  --muted: #2e2a26;
+  --muted-foreground: rgba(242, 238, 232, 0.55);
+  --accent: #2e2a26;
+  --accent-foreground: #f2eee8;
+  --destructive: #d49288;
+  --destructive-foreground: #f2eee8;
+  --border: rgba(242, 238, 232, 0.1);
+  --input: rgba(242, 238, 232, 0.12);
+  --ring: #c4a77d;
+
+  --sidebar: #22201d;
+  --sidebar-foreground: #f2eee8;
+  --sidebar-primary: #c4a77d;
+  --sidebar-primary-foreground: #1e1b18;
+  --sidebar-accent: #2e2a26;
+  --sidebar-accent-foreground: #f2eee8;
+  --sidebar-border: rgba(242, 238, 232, 0.08);
+  --sidebar-ring: #c4a77d;
+
+  /*  Фоны  */
+  --raw-bg: #1e1b18;
+  --raw-bg-elevated: #262320;
+  --raw-bg-subtle: #2e2a26;
+  --raw-surface: #262320;
+  --raw-surface-hover: #2e2a26;
+
+  /* Акцент */
+  --raw-accent: #c4a77d;
+  --raw-accent-hover: #d4b78d;
+  --raw-accent-active: #b8956b;
+  --raw-accent-subtle: #d4b78d;
+  --raw-accent-20: color-mix(in srgb, #c4a77d 20%, transparent);
+  --raw-accent-12: color-mix(in srgb, #c4a77d 12%, transparent);
+  --raw-accent-8: color-mix(in srgb, #c4a77d 8%, transparent);
+
+  /* Бордеры */
+  --raw-border: rgba(242, 238, 232, 0.1);
+  --raw-border-strong: rgba(242, 238, 232, 0.2);
+
+  /* Текст */
+  --raw-text: #f2eee8;
+  --raw-text-80: rgba(242, 238, 232, 0.8);
+  --raw-text-60: rgba(242, 238, 232, 0.6);
+  --raw-text-40: rgba(242, 238, 232, 0.4);
+  --raw-text-disabled: rgba(242, 238, 232, 0.25);
+
+  /* Статусы */
+  --raw-success: #7ab88a;
+  --raw-success-bg: rgba(122, 184, 138, 0.12);
+  --raw-warning: #d4b060;
+  --raw-warning-bg: rgba(212, 176, 96, 0.12);
+  --raw-error: #d49288;
+  --raw-error-bg: rgba(193, 123, 110, 0.15);
+  --raw-info: #8ab0c8;
+  --raw-info-bg: rgba(138, 176, 200, 0.12);
+}

@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import './variables.css';
+@import './reset.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* ── shadcn-маппинг (не трогаем) ───────────────────── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --text-8: var(--font-size-8);
+  --text-12: var(--font-size-12);
+  --text-16: var(--font-size-16);
+  --text-20: var(--font-size-20);
+  --text-24: var(--font-size-24);
+  --text-28: var(--font-size-28);
+  --text-32: var(--font-size-32);
+  --text-36: var(--font-size-36);
+  --text-40: var(--font-size-40);
+  --text-48: var(--font-size-48);
+  --text-56: var(--font-size-56);
+  --text-64: var(--font-size-64);
+  --text-80: var(--font-size-80);
+  --text-96: var(--font-size-96);
+
+  /* ── Свои токены → Tailwind-утилиты ────────────────── */
+
+  /* Фоны */
+  --color-bg: var(--raw-bg);
+  --color-bg-elevated: var(--raw-bg-elevated);
+  --color-bg-subtle: var(--raw-bg-subtle);
+  --color-surface: var(--raw-surface);
+  --color-surface-hover: var(--raw-surface-hover);
+
+  /* Акцент */
+  --color-accent-custom: var(--raw-accent);
+  --color-accent-hover: var(--raw-accent-hover);
+  --color-accent-active: var(--raw-accent-active);
+  --color-accent-subtle: var(--raw-accent-subtle);
+  --color-accent-20: var(--raw-accent-20);
+  --color-accent-12: var(--raw-accent-12);
+  --color-accent-8: var(--raw-accent-8);
+
+  /* Бордеры */
+  --color-border-strong: var(--raw-border-strong);
+
+  /* Текст */
+  --color-text: var(--raw-text);
+  --color-text-80: var(--raw-text-80);
+  --color-text-60: var(--raw-text-60);
+  --color-text-40: var(--raw-text-40);
+  --color-text-disabled: var(--raw-text-disabled);
+
+  /* Статусы */
+  --color-success: var(--raw-success);
+  --color-success-bg: var(--raw-success-bg);
+  --color-warning: var(--raw-warning);
+  --color-warning-bg: var(--raw-warning-bg);
+  --color-error: var(--raw-error);
+  --color-error-bg: var(--raw-error-bg);
+  --color-info: var(--raw-info);
+  --color-info-bg: var(--raw-info-bg);
+
+  /* Шрифты: font-display, font-interface */
+  --font-display: 'Geist', sans-serif;
+  --font-interface: 'Golos Text', sans-serif;
+  --font-sans: var(--font-interface);
+  --font-mono: var(--font-display);
+
+  /* Размеры текста — кратно 4, от 8px */
+  --font-size-8: 0.5rem;
+  --font-size-12: 0.75rem;
+  --font-size-16: 1rem;
+  --font-size-20: 1.25rem;
+  --font-size-24: 1.5rem;
+  --font-size-28: 1.75rem;
+  --font-size-32: 2rem;
+  --font-size-36: 2.25rem;
+  --font-size-40: 2.5rem;
+  --font-size-48: 3rem;
+  --font-size-56: 3.5rem;
+  --font-size-64: 4rem;
+  --font-size-80: 5rem;
+  --font-size-96: 6rem;
+
+  --spacing-2: var(--space-2);
+  --spacing-4: var(--space-4);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-interface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Числа, лейблы, коды — через display (Geist) */
+  code,
+  kbd,
+  pre,
+  [data-font='display'] {
+    font-family: var(--font-display);
+  }
+}
